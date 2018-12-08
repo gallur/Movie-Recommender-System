@@ -7,11 +7,61 @@ layout: default
 
 <h3> <b> Project Affiliation: Data Science & Big Data Course @Carnegie Mellon University, under Prof. Raja </b> </h3>
 
-<h3>  Movie recommendation systems are used by top companies such as Netflix and other companies like Amazon use recommendation systems at a massive scale. In this project, I am building a recommendation system for movies where I have a huge dataset with over 1 million data points.  </h3>
+<h3>  Movie recommendation systems are used by top companies such as Netflix and other companies like Amazon use recommendation systems at a massive scale. In this project, I am building a recommendation system for movies where I have a huge dataset with over 1 million data points. </h3>
 
 <h3> I first start with reading the file line by line into the first mapper and split the lines and pass the userID as key and and pass the movie and rating as values. This is then recieved by the first reducer which aggregates all the ratings of the users into a single list. For each movie in this list, I perform an optimized permutation that avoids duplicate pairs. This gives me a complete pairing of every two movies and their corresponding rater from users. </h3>
 
+<!-- HTML generated using hilite.me --><div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #008800; font-weight: bold">def</span> <span style="color: #0066BB; font-weight: bold">mapper</span>(<span style="color: #007020">self</span>, _, line):
+        <span style="color: #008800; font-weight: bold">if</span> <span style="background-color: #fff0f0">&quot;user&quot;</span> <span style="color: #000000; font-weight: bold">in</span> line:<span style="color: #888888">#skipping first line</span>
+            <span style="color: #008800; font-weight: bold">pass</span>
+        <span style="color: #008800; font-weight: bold">else</span>:
+            vals <span style="color: #333333">=</span> line<span style="color: #333333">.</span>split(<span style="background-color: #fff0f0">&#39;,&#39;</span>)<span style="color: #888888">#splitting input lines with , to ensure that we have each value in a list</span>
+            <span style="color: #008800; font-weight: bold">yield</span> (vals[<span style="color: #0000DD; font-weight: bold">0</span>],(vals[<span style="color: #0000DD; font-weight: bold">1</span>],vals[<span style="color: #0000DD; font-weight: bold">2</span>]))<span style="color: #888888">#send movie Id with rating</span>
+</pre></div>
+
+<!-- HTML generated using hilite.me --><div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%">    <span style="color: #008800; font-weight: bold">def</span> <span style="color: #0066BB; font-weight: bold">reducer</span>(<span style="color: #007020">self</span>, key, values):  <span style="color: #888888"># values is a generator</span>
+        lis <span style="color: #333333">=</span> <span style="color: #007020">list</span>(values)<span style="color: #888888">#combining all teh values for a single key into a list</span>
+        <span style="color: #008800; font-weight: bold">for</span> i <span style="color: #000000; font-weight: bold">in</span> <span style="color: #007020">range</span>(<span style="color: #007020">len</span>(lis)):<span style="color: #888888">#creating all possible combinations</span>
+            <span style="color: #008800; font-weight: bold">for</span> j <span style="color: #000000; font-weight: bold">in</span> <span style="color: #007020">range</span>(i<span style="color: #333333">+</span><span style="color: #0000DD; font-weight: bold">1</span>, <span style="color: #007020">len</span>(lis)):
+                <span style="color: #008800; font-weight: bold">yield</span>((lis[i][<span style="color: #0000DD; font-weight: bold">0</span>], lis[j][<span style="color: #0000DD; font-weight: bold">0</span>]),(lis[i][<span style="color: #0000DD; font-weight: bold">1</span>],lis[j][<span style="color: #0000DD; font-weight: bold">1</span>]))
+</pre></div>
+
 <h3> This is then fed into the second reducer, where I am using a certain logic to create a pearson co-effecient between every two movies. When the pearson co-ef is high, it means that the two movies are similar and hence if a user has liked one of these movies, it is highly likely that he will like the other movie too. </h3>
+
+<!-- HTML generated using hilite.me --><div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%">    <span style="color: #008800; font-weight: bold">def</span> <span style="color: #0066BB; font-weight: bold">reducer2</span>(<span style="color: #007020">self</span>, key, values):
+        vals <span style="color: #333333">=</span> <span style="color: #007020">list</span>(values)<span style="color: #888888">#combining all teh values for a single key into a list</span>
+        lis1 <span style="color: #333333">=</span> []<span style="color: #888888">#creating three lists to ensure that we have data structures to store the values needed for pearson.</span>
+        lis2 <span style="color: #333333">=</span> []
+        lis3 <span style="color: #333333">=</span> []
+        <span style="color: #008800; font-weight: bold">if</span> <span style="color: #0000DD; font-weight: bold">8</span><span style="color: #000000; font-weight: bold">in</span> key:
+            <span style="color: #008800; font-weight: bold">for</span> x <span style="color: #000000; font-weight: bold">in</span> vals:
+                <span style="color: #888888">#creating three lists to ensure that we have data structures to store the values needed for pearson.</span>
+                lis1<span style="color: #333333">.</span>append(<span style="color: #007020">float</span>(x[<span style="color: #0000DD; font-weight: bold">0</span>]))
+                lis2<span style="color: #333333">.</span>append(<span style="color: #007020">float</span>(x[<span style="color: #0000DD; font-weight: bold">1</span>]))
+                lis3<span style="color: #333333">.</span>append(<span style="color: #007020">float</span>(x[<span style="color: #0000DD; font-weight: bold">1</span>])<span style="color: #333333">*</span><span style="color: #007020">float</span>(x[<span style="color: #0000DD; font-weight: bold">0</span>]))
+            <span style="color: #888888">#lenth of the list</span>
+            n <span style="color: #333333">=</span> <span style="color: #007020">len</span>(lis1)
+            <span style="color: #888888">#sum of list</span>
+            sum1 <span style="color: #333333">=</span> <span style="color: #007020">sum</span>(lis1)
+            <span style="color: #888888">#sum of list</span>
+            sum2 <span style="color: #333333">=</span> <span style="color: #007020">sum</span>(lis2)
+            <span style="color: #888888">#sum of squares of list</span>
+            sums1 <span style="color: #333333">=</span> <span style="color: #007020">sum</span>([<span style="color: #007020">pow</span>(y,<span style="color: #0000DD; font-weight: bold">2</span>) <span style="color: #008800; font-weight: bold">for</span> y <span style="color: #000000; font-weight: bold">in</span> lis1])
+            <span style="color: #888888">#sum of squares of list</span>
+            sums2 <span style="color: #333333">=</span> <span style="color: #007020">sum</span>([<span style="color: #007020">pow</span>(h,<span style="color: #0000DD; font-weight: bold">2</span>) <span style="color: #008800; font-weight: bold">for</span> h <span style="color: #000000; font-weight: bold">in</span> lis2])
+            <span style="color: #888888">#sum of list</span>
+            sum3 <span style="color: #333333">=</span> <span style="color: #007020">sum</span>(lis3)
+            <span style="color: #888888">#Pearson calculation</span>
+            num <span style="color: #333333">=</span> sum3<span style="color: #333333">-</span>(sum1<span style="color: #333333">*</span>sum2<span style="color: #333333">/</span>n)
+            den<span style="color: #333333">=</span>math<span style="color: #333333">.</span>sqrt((sums1<span style="color: #333333">-</span><span style="color: #007020">pow</span>(sum1,<span style="color: #0000DD; font-weight: bold">2</span>)<span style="color: #333333">/</span>n)<span style="color: #333333">*</span>(sums2<span style="color: #333333">-</span><span style="color: #007020">pow</span>(sum2,<span style="color: #0000DD; font-weight: bold">2</span>)<span style="color: #333333">/</span>n))
+            <span style="color: #008800; font-weight: bold">if</span> den<span style="color: #333333">==</span><span style="color: #0000DD; font-weight: bold">0</span>:
+                alpha <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">0</span>
+            <span style="color: #008800; font-weight: bold">else</span>:
+                alpha<span style="color: #333333">=</span>num<span style="color: #333333">/</span>den
+            <span style="color: #888888">#only send if r &gt; 0.5</span>
+            <span style="color: #008800; font-weight: bold">if</span> alpha <span style="color: #333333">&gt;=</span> <span style="color: #6600EE; font-weight: bold">0.5</span>:
+                <span style="color: #008800; font-weight: bold">yield</span> alpha, key
+</pre></div>
 
 <h3> It is wise to consider those pearson co-efs that are higher than 0.5 as that creates a more significant relation between two movies. The higher we go with the pearson co-ef, the more similarity between the movies. </h3>
 
@@ -19,5 +69,13 @@ layout: default
 
 <h3> To pass commandline arguments to the MapReduce program, I had to set up some custom configurations as shown below. </h3>
 
+<!-- HTML generated using hilite.me --><div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%">   <span style="color: #008800; font-weight: bold">class</span> <span style="color: #BB0066; font-weight: bold">MR_program</span>(MRJob):
+    <span style="color: #888888">#setting up configuration in order to use the commandline arguments.</span>
+    <span style="color: #008800; font-weight: bold">def</span> <span style="color: #0066BB; font-weight: bold">configure_args</span>(<span style="color: #007020">self</span>):
+        <span style="color: #007020">super</span>(MR_program, <span style="color: #007020">self</span>)<span style="color: #333333">.</span>configure_args()
+        <span style="color: #007020">self</span><span style="color: #333333">.</span>add_passthru_arg(<span style="background-color: #fff0f0">&#39;-m&#39;</span>)<span style="color: #888888">#my command line argument will be -m</span>
+</pre></div>
+
 <h3> Here is an example of the output for a sample movie '858'. </h3>
 
+<img src = 'https://4.bp.blogspot.com/-t3y6lJm6GZg/XAtFjNfmwRI/AAAAAAAAAGc/jLWy4XFhIVEm5QtoS6J7V622YwlC9ntrACLcBGAs/s1600/Movies.png'>
