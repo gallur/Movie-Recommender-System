@@ -7,4 +7,17 @@ layout: default
 
 <h3> <b> Project Affiliation: Data Science & Big Data Course @Carnegie Mellon University, under Prof. Raja </b> </h3>
 
-<h3>  Movie recommendation systems are used by top companies such as Netflix and other companies like Amazon use recommendation systems at a massive scale. In this project, I am building a recommendation system for movies where I have a huge dataset with over 1 million data points.  </h3> 
+<h3>  Movie recommendation systems are used by top companies such as Netflix and other companies like Amazon use recommendation systems at a massive scale. In this project, I am building a recommendation system for movies where I have a huge dataset with over 1 million data points.  </h3>
+
+<h3> I first start with reading the file line by line into the first mapper and split the lines and pass the userID as key and and pass the movie and rating as values. This is then recieved by the first reducer which aggregates all the ratings of the users into a single list. For each movie in this list, I perform an optimized permutation that avoids duplicate pairs. This gives me a complete pairing of every two movies and their corresponding rater from users. </h3>
+
+<h3> This is then fed into the second reducer, where I am using a certain logic to create a pearson co-effecient between every two movies. When the pearson co-ef is high, it means that the two movies are similar and hence if a user has liked one of these movies, it is highly likely that he will like the other movie too. </h3>
+
+<h3> It is wise to consider those pearson co-efs that are higher than 0.5 as that creates a more significant relation between two movies. The higher we go with the pearson co-ef, the more similarity between the movies. </h3>
+
+<h3> The MapReduce program takes in a command line argument and then provides a list of movies that are similar to the movie that was provided. This is how most recommendation systems work. </h3>
+
+<h3> To pass commandline arguments to the MapReduce program, I had to set up some custom configurations as shown below. </h3>
+
+<h3> Here is an example of the output for a sample movie '858'. </h3>
+
